@@ -75,6 +75,11 @@ namespace LZLUnityTool.Plugins.UIAnimPlugin
             PlayChangeAnim(changeSpeedType,startValue,targetValue);
         }
 
+        public void PlayChangeAnim(int startValueP,int targetValueP)
+        {
+            PlayChangeAnim(changeSpeedType,startValueP,targetValueP);
+        }
+        
         /// <summary>
         /// 仅仅自己配置开始结束值进行播放动画
         /// </summary>
@@ -113,7 +118,7 @@ namespace LZLUnityTool.Plugins.UIAnimPlugin
         }
 
         //**************数值变化
-        public void ValueChange_Fixed(int startValueP,int targetValueP,float unitDurationP,bool ignoreScale = true)
+        protected void ValueChange_Fixed(int startValueP,int targetValueP,float unitDurationP,bool ignoreScale = true)
         {
             StopChangeAnimCoro();
             if (CheckTextExist())
@@ -162,7 +167,7 @@ namespace LZLUnityTool.Plugins.UIAnimPlugin
         /// <param name="startValueP"></param>
         /// <param name="targetValueP"></param>
         /// <param name="ignoreScale"></param>
-        public void ValueChange_Linear(int startValueP,int targetValueP,bool ignoreScale = true)
+        protected void ValueChange_Linear(int startValueP,int targetValueP,bool ignoreScale = true)
         {
             StopChangeAnimCoro();
             if (CheckTextExist())
@@ -211,7 +216,7 @@ namespace LZLUnityTool.Plugins.UIAnimPlugin
         /// <param name="startValueP"></param>
         /// <param name="targetValueP"></param>
         /// <param name="ignoreScale"></param>
-        public void ValueChange_Cruve(int startValueP,int targetValueP,AnimationCurve cruve,bool ignoreScale = true)
+        protected void ValueChange_Cruve(int startValueP,int targetValueP,AnimationCurve cruve,bool ignoreScale = true)
         {
             StopChangeAnimCoro();
             if (CheckTextExist())
@@ -360,7 +365,7 @@ namespace LZLUnityTool.Plugins.UIAnimPlugin
         /// 检查Text是否为空
         /// </summary>
         /// <returns></returns>
-        public bool CheckTextExist()
+        protected bool CheckTextExist()
         {
             text = GetComponent<Text>();
             if (!text)

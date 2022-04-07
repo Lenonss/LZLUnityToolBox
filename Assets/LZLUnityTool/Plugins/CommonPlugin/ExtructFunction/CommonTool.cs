@@ -45,5 +45,38 @@ namespace LZLUnityTool.Plugins.CommonPlugin.ExtructFunction
             if (!component) return;
             SetActive(component.gameObject, value);
         }
+        
+        #region Component
+        
+        /// <summary>
+        /// 检查T组件是否挂载载gameObject上
+        /// </summary>
+        /// <param name="gameObject">目标游戏体</param>
+        /// <typeparam name="T">组件类型</typeparam>
+        /// <returns></returns>
+        public  static bool CheckComponentIsExist<T>(GameObject gameObject)
+        {
+            return gameObject.GetComponent<T>() != null;
+        }
+        
+        /// <summary>
+        /// 检查T组件是否挂载在gameObject上，会给para赋值
+        /// </summary>
+        /// <param name="gameObject">目标游戏体</param>
+        /// <param name="para">存储目标组件的对象</param>
+        /// <typeparam name="T">组件类型</typeparam>
+        /// <returns></returns>
+        public static bool CheckComponentIsExist<T>(GameObject gameObject,ref T para)
+        {
+            if (para != null)
+            {
+                return true;
+            }
+
+            para = gameObject.GetComponent<T>();
+            return para != null;
+        }
+
+        #endregion
     }
 }
