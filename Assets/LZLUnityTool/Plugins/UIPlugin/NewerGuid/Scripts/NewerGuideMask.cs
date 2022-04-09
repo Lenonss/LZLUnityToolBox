@@ -17,7 +17,7 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
 
 
         [Header("开始时自动使用")] 
-        public bool PlayOnStart = true;
+        public bool playOnStart = true;
 
         [Header("自定义画布")] 
         public bool customCanvas;
@@ -40,10 +40,10 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         /// </summary>
         private Material _material;
         
-        private Canvas canvas;
-        private Coroutine changeCoro;
-        private int currentIndex;
-        private RectTransform clickArea;
+        private Canvas _canvas;
+        private Coroutine _changeCoro;
+        private int _currentIndex;
+        private RectTransform _clickArea;
 
         public Action OnChangingAnimStart;
         public Action OnChangingAnimOver;
@@ -51,15 +51,15 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         //===============生命周期函数
         private void Awake()
         {
-            currentIndex = 0;
-            canvas = targetCanvas ? targetCanvas : GameObject.Find("Canvas").GetComponent<Canvas>();
+            _currentIndex = 0;
+            _canvas = targetCanvas ? targetCanvas : GameObject.Find("Canvas").GetComponent<Canvas>();
             _material = GetComponent<Image>().material;
             
             
         }
         private void Start()
         {
-            if (PlayOnStart)
+            if (playOnStart)
                 //获取画布
                 StartCoroutine(DelayToCall(Time.deltaTime, ChangeTarget));
         }
@@ -68,10 +68,10 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         //===============开始功能接口
         public void ChangeTarget()
         {
-            if (currentIndex >= targets.Count)
-                currentIndex = 0;
-            ChangeTarget(targets[currentIndex]);
-            currentIndex++;
+            if (_currentIndex >= targets.Count)
+                _currentIndex = 0;
+            ChangeTarget(targets[_currentIndex]);
+            _currentIndex++;
         }
         public void ChangeTarget(RectTransform target)
         {
@@ -79,11 +79,11 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
                 return;
             
             //参数赋值
-            clickArea = target;
+            _clickArea = target;
             Vector2 screenAdaptePara = new Vector2(Screen.width / 2, Screen.height / 2);//适配参数
             
             //计算高亮显示区域的圆心
-            clickArea.GetWorldCorners(_corners);
+            _clickArea.GetWorldCorners(_corners);
             float x = _corners[0].x + ((_corners[3].x - _corners[0].x) / 2f);
             float y = _corners[0].y + ((_corners[1].y - _corners[0].y) / 2f);
             Vector3 centerWorld = new Vector3(x, y, 0);
@@ -96,13 +96,13 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
             if (isCircle)
             {
                 //计算最终高亮显示区域的半径
-                var _targetRadius = Vector2.Distance(WorldToCanvasPos(canvas, _corners[0]),
-                    WorldToCanvasPos(canvas, _corners[2])) / 2f;
+                var targetRadius = Vector2.Distance(WorldToCanvasPos(_canvas, _corners[0]),
+                    WorldToCanvasPos(_canvas, _corners[2])) / 2f;
 
                 float maxRadius = GetMaxRadius(centerWorld);
             
                 _material.SetFloat("_EdgeSlider", maxRadius);
-                StartPlayChangeCoro(maxRadius, _targetRadius);
+                StartPlayChangeCoro(maxRadius, targetRadius);
             }
             else
             {
@@ -111,8 +111,8 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
                 Vector4 Lengths = Vector4.zero;//上下左右
                 Vector4 rectangleDis = new Vector4(this.rectangleDis, this.rectangleDis, this.rectangleDis,
                     this.rectangleDis);
-                canvas.GetComponent<RectTransform>().GetWorldCorners(cavasCorners);
-                clickArea.GetWorldCorners(centerCorners);
+                _canvas.GetComponent<RectTransform>().GetWorldCorners(cavasCorners);
+                _clickArea.GetWorldCorners(centerCorners);
                 Lengths.x = Mathf.Abs(cavasCorners[1].y - centerCorners[1].y);//距离上边界距离
                 Lengths.y = Mathf.Abs(cavasCorners[0].y - centerCorners[0].y);//距离下边界距离
                 Lengths.z = Mathf.Abs(cavasCorners[1].x - centerCorners[1].x);//距离左边界距离
@@ -128,7 +128,7 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         
         
         //===============镂空实现
-        IEnumerator PlayChange(float currentRidus, float targetRidus,Vector4 lengths= default)
+        IEnumerator PlayChange(float currentRidus, float targetRidus)
         {
             OnChangingAnimStart?.Invoke();
 
@@ -144,14 +144,8 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
             while (true)
             {
                 currentRidus += unitChangeValue;
-                if (isCircle)
-                {
-                    _material.SetFloat("_EdgeSlider", currentRidus);
-                }
-                else
-                {
-                    _material.SetFloat("_Length", currentRidus);
-                }
+                _material.SetFloat("_EdgeSlider", currentRidus);
+                
                 unitDelta = Mathf.Abs(targetRidus - currentRidus);
                 unitDuration = Mathf.Clamp01(1 - animationCurve.Evaluate(unitDelta / Mathf.Abs(delta)));
 
@@ -177,6 +171,9 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
 
         IEnumerator PlayChange(Vector4 maxLengths,Vector4 minLengths)
         {
+            OnChangingAnimStart?.Invoke();
+
+            
             _material.SetFloat("_Type", isCircle ? 0 : 1);
             float percent = 0;
             float unitDuration = 0;
@@ -196,6 +193,7 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
                 }
                 if (percent>=1)
                 {
+                    OnChangingAnimOver?.Invoke();
                     break;
                 }
                 percent += 0.01f;
@@ -206,14 +204,14 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         private void StartPlayChangeCoro(float currentRidus, float targetRidus)
         {
             StopPlayChangeCoro();
-            changeCoro = StartCoroutine(PlayChange(currentRidus, targetRidus));
+            _changeCoro = StartCoroutine(PlayChange(currentRidus, targetRidus));
         }
         private void StopPlayChangeCoro()
         {
-            if (changeCoro != null)
+            if (_changeCoro != null)
             {
-                StopCoroutine(changeCoro);
-                changeCoro = null;
+                StopCoroutine(_changeCoro);
+                _changeCoro = null;
             }
         }
         
@@ -234,7 +232,7 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         {
             float result = 0;
             //计算当前高亮显示区域的半径
-            RectTransform canRectTransform = canvas.transform as RectTransform;
+            RectTransform canRectTransform = _canvas.transform as RectTransform;
             if (canRectTransform != null)
             {
                 canRectTransform.GetWorldCorners(_corners);//获取画布区域的四个顶点
@@ -266,12 +264,12 @@ namespace LZLUnityTool.Plugins.UIPlugin.NewerGuid.Scripts
         //没有目标则捕捉事件渗透
         public bool IsRaycastLocationValid(Vector2 sp, Camera eventCamera)
         {
-            if (clickArea == null)
+            if (_clickArea == null)
             {
                 return true;
             }
             //在目标范围内做事件渗透,遮挡的阻隔是否在该区域有效
-            return !RectTransformUtility.RectangleContainsScreenPoint(clickArea,
+            return !RectTransformUtility.RectangleContainsScreenPoint(_clickArea,
                 sp, eventCamera);
         }
 

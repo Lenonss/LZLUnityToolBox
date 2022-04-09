@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
@@ -72,6 +73,34 @@ namespace LZLUnityTool.Plugins.CommonPlugin.ExtructFunction
             }
 
             return -1;
+        }
+
+        /// <summary>
+        /// 查找数组中两数之和为目标值的下标
+        /// </summary>
+        /// <param name="srcList">数组</param>
+        /// <param name="target">目标值</param>
+        /// <returns>两数的下标数组</returns>
+        public static List<int> TwoSum(this List<int> srcList, int target)
+        {
+            Dictionary<int,int> map = new Dictionary<int,int>();
+            for (int i = 0; i < srcList.Count; i++) 
+            {
+                if (map.ContainsKey(target - srcList[i]))
+                {
+                    return new List<int>() {map[target - srcList[i]], i};
+                }
+                else
+                {
+                    if (map.ContainsKey(srcList[i]))
+                    {
+                        continue;
+                    }
+                    map.Add(srcList[i],i);
+                }
+            }
+
+            return null;
         }
     }
 }
