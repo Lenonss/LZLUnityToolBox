@@ -47,6 +47,13 @@ namespace LZLUnityTool.Plugins.UIAnimPlugin
         }
     }
 
+    /// <summary>
+    /// 设定晃动时长、是否不顾上一次晃动强行开始新晃动、晃动完毕调用事件。其余使用脚本自身配置开始UI晃动。
+    /// </summary>
+    /// <param name="shakeDuration">晃动时长</param>
+    /// <param name="forceShake">是否不顾上一次晃动强行开始新晃动</param>
+    /// <param name="shakeOverInvoke">晃动完毕调用事件</param>
+    /// <returns></returns>
     public bool PlayShake(float shakeDuration,bool forceShake = false,Action shakeOverInvoke = null)
     {
         if (curCoroutine == null)
