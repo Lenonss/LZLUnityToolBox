@@ -102,5 +102,61 @@ namespace LZLUnityTool.Plugins.CommonPlugin.ExtructFunction
 
             return null;
         }
+
+        /// <summary>
+        /// 快速排序
+        /// </summary>
+        /// <param name="srcList"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void QuickSort<T>(this List<T> srcList) where T : IComparable
+        {
+            if (srcList.Count <= 1)
+            {
+                return;
+            }
+            QuickSort(0,srcList.Count-1,srcList);
+        }
+
+        private static void QuickSort<T>(int leftIndex, int rightIndex, List<T> list) where T : IComparable
+        {
+            if (leftIndex > rightIndex)
+            {
+                return;
+            }
+            
+            T pivot = list[leftIndex];
+            int l = leftIndex;
+            int r = rightIndex;
+            while (l < r)
+            {
+                while (list[r].CompareTo(pivot) > 0 && l < r)
+                {
+                    r--;
+                }
+                list[l] = list[r];
+                l = l < r ? l + 1 : l;
+
+                while (list[l].CompareTo(pivot)<0&&l<r)
+                {
+                    l++;
+                }
+                list[r] = list[l];
+                r = l < r ? r - 1 : r;
+            }
+            list[l] = pivot;
+            
+            QuickSort(leftIndex,l-1,list);
+            QuickSort(l+1,rightIndex,list);
+        }
+
+        public static string GetPrintStr<T>(this List<T> srcList)
+        {
+            string result = "";
+            for (int i = 0; i < srcList.Count; i++)
+            {
+                result += srcList[i].ToString() + "\n";
+            }
+            return result;
+        }
     }
 }
